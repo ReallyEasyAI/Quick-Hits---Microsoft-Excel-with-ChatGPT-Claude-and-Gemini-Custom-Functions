@@ -1,0 +1,123 @@
+Function ChatGPT(prompt As String) As String
+    ' Remember to replace the placeholder with your actual OpenAI API key
+    Const apiKey As String = "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"
+    Const requestUrl As String = "https://api.openai.com/v1/chat/completions"
+    
+    Dim http As Object, regex As Object, matches As Object
+    Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
+    Set regex = CreateObject("VBScript.RegExp")
+    
+    Dim requestBody As String
+    requestBody = "{""model"": ""gpt-3.5-turbo"", ""messages"": [{""role"": ""user"", ""content"": """ & prompt & """}]}"
+    
+    With http
+        .Open "POST", requestUrl, False
+        .SetRequestHeader "Content-Type", "application/json"
+        .SetRequestHeader "Authorization", "Bearer " & apiKey
+        .Send requestBody
+    End With
+    
+    If http.Status = 200 Then
+        With regex
+            .Global = True
+            .MultiLine = True
+            .IgnoreCase = False
+            .Pattern = """content"":\s*""([^""]+)"""
+        End With
+        
+        Set matches = regex.Execute(http.ResponseText)
+        If matches.Count >= 1 Then
+            ChatGPT = Replace(matches(0).SubMatches(0), "\n", vbLf)
+        Else
+            ChatGPT = "Content not found in response."
+        End If
+    Else
+        ChatGPT = "Error: " & http.Status & " - " & http.StatusText
+    End If
+    
+    Set http = Nothing
+    Set regex = Nothing
+End Function
+
+Function Claude(prompt As String) As String
+    ' Remember to replace the placeholder with your actual Anthropics API key
+    Const apiKey As String = "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"
+    Const requestUrl As String = "https://api.anthropic.com/v1/messages"
+    
+    Dim http As Object, regex As Object, matches As Object
+    Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
+    Set regex = CreateObject("VBScript.RegExp")
+    
+    Dim requestBody As String
+    requestBody = "{""model"": ""claude-3-haiku-20240307"", ""max_tokens"": 1024, ""messages"": [{""role"": ""user"", ""content"": """ & prompt & """}]}"
+    
+    With http
+        .Open "POST", requestUrl, False
+        .SetRequestHeader "Content-Type", "application/json"
+        .SetRequestHeader "x-api-key", apiKey
+        .SetRequestHeader "anthropic-version", "2023-06-01"
+        .Send requestBody
+    End With
+    
+    If http.Status = 200 Then
+        With regex
+            .Global = True
+            .MultiLine = True
+            .IgnoreCase = False
+            .Pattern = """text"":\s*""([^""]+)"""
+        End With
+        
+        Set matches = regex.Execute(http.ResponseText)
+        If matches.Count >= 1 Then
+            Claude = Replace(matches(0).SubMatches(0), "\n", vbLf)
+        Else
+            Claude = "Content not found in response."
+        End If
+    Else
+        Claude = "Error: " & http.Status & " - " & http.StatusText
+    End If
+    
+    Set http = Nothing
+    Set regex = Nothing
+End Function
+
+Function Gemini(prompt As String) As String
+    ' Remember to replace the placeholder with your actual Google API key
+    Const apiKey As String = "AIzaSyBqN12U1ZueGxpki6uub1naf3uyhqlXdM8"
+    Const requestUrl As String = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" & apiKey
+    
+    Dim http As Object, regex As Object, matches As Object
+    Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
+    Set regex = CreateObject("VBScript.RegExp")
+    
+    Dim requestBody As String
+    requestBody = "{""contents"":[{""parts"":[{""text"":""" & prompt & """}]}]}"
+    
+    With http
+        .Open "POST", requestUrl, False
+        .SetRequestHeader "Content-Type", "application/json"
+        .Send requestBody
+    End With
+    
+    If http.Status = 200 Then
+        With regex
+            .Global = True
+            .MultiLine = True
+            .IgnoreCase = False
+            .Pattern = """text"":\s*""([^""]+)"""
+        End With
+        
+        Set matches = regex.Execute(http.ResponseText)
+        If matches.Count >= 1 Then
+            Gemini = Replace(matches(0).SubMatches(0), "\n", vbLf)
+        Else
+            Gemini = "Content not found in response."
+        End If
+    Else
+        Gemini = "Error: " & http.Status & " - " & http.StatusText
+    End If
+    
+    Set http = Nothing
+    Set regex = Nothing
+End Function
+
